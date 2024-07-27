@@ -136,7 +136,7 @@ class ResponseGenerator:
                 foods.append(food)
             # print(foods)
             res = self.generate_with_context(questions, foods)
-            return json.loads(res)
+            return json.loads(res)['foods']
         except Exception as e:
             print(e)
     
