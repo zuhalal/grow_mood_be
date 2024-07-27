@@ -1,7 +1,7 @@
 from openai import OpenAI
 from app.config import get_settings
 from app.utils.embedding import get_embedding
-
+from app.utils.db import db
 import pandas as pd
 import numpy as np
 import faiss
@@ -124,26 +124,37 @@ class ResponseGenerator:
                 
         return food_objects
 
+    async def get_foods(self, questions):
+        try:
+            foods_ref = db.collection('Food').limit(10)
+            docs = foods_ref.stream()
 
+            foods = []
+            for doc in docs:
+                food = doc.to_dict()
+                food['id'] = doc.id
+                foods.append(food)
+            # print(foods)
+            res = self.generate_with_context(questions, foods)
+            return json.loads(res)
+        except Exception as e:
+            print(e)
+    
     def generate_answer(self, db: any, question: str):
         # generate embeddings representation from question
         query_chunks = [question]
-        print('b')
         query_embeddings = get_embedding(query_chunks)
-        print("c")
 
         # get embeddings representation from data/embeddings.json
         current_dir = os.path.dirname(os.path.abspath(__file__))
         json_path = os.path.join(current_dir, '../data/embeddings.json')
         df = pd.read_json(json_path, orient="record", lines=True)
         embeddings = np.array([e for e in df['embedding'].values])
-        print("aa")
 
         # do similiraty search to get top-k relevan embeddings based on the user question
         index_hnsw = faiss.IndexHNSWFlat(embeddings.shape[1], 32, faiss.METRIC_INNER_PRODUCT)
         index_hnsw.add(embeddings)
         distances_hnsw, indices_hnsw = index_hnsw.search(query_embeddings[0].reshape(1, -1), k=30)
-        print('dd')
         # get the context
         document_selection = indices_hnsw[distances_hnsw < 1]
         contexts = df.iloc[document_selection]['chunk'].to_list()

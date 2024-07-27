@@ -16,9 +16,17 @@ async def protected_route():
 @router.post("/recommendation")
 async def create_item(req: RecommendationRequest):
     agent = ResponseGenerator()
-    print("masook")
     try:
         output = agent.generate_answer(db=db, question=f"Please provide the top food recommendations for people that feel {req.mood} and {req.description}")
         return {"recommendation": output, "total": len(output)}
+    except Exception as e:
+        print(e)
+
+@router.post("/recommendation2")
+async def create_item2(req: RecommendationRequest):
+    agent = ResponseGenerator()
+    try:
+        output = await agent.get_foods(questions=f"Please provide the top food recommendations for people that feel {req.mood} and {req.description}")
+        return {"recommendation": output}
     except Exception as e:
         print(e)
