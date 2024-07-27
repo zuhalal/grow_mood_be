@@ -126,7 +126,7 @@ class ResponseGenerator:
 
     async def get_foods(self, questions):
         try:
-            foods_ref = db.collection('Food').limit(10)
+            foods_ref = db.collection('Food').limit(20)
             docs = foods_ref.stream()
 
             foods = []
