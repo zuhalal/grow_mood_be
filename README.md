@@ -61,7 +61,8 @@ pip install -r requirements.txt
 Add service account for firebase admin with name `firebase-config.json` in the root directory
 
 ### Add Embedding Models
-
+1. Download [Embedding Models](https://drive.google.com/file/d/19LeB2J_bw2mpVns_H4tp6XrXogdTelMB/view?usp=sharing)
+2. Move the json data into `app/data`
 
 ### Run the Application
 
