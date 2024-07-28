@@ -2,6 +2,7 @@ from app.utils.response_generator import ResponseGenerator
 from fastapi import APIRouter
 from app.model.recommendation import RecommendationRequest
 from app.utils.db import db
+from fastapi.responses import JSONResponse
 
 router =  APIRouter()
 
@@ -27,6 +28,6 @@ async def create_item2(req: RecommendationRequest):
     agent = ResponseGenerator()
     try:
         output = await agent.get_foods(questions=f"Please provide the top food recommendations for people that feel {req.mood} and {req.description}")
-        return {"recommendation": output}
+        return JSONResponse(content={"recommendation": output})
     except Exception as e:
         print(e)

@@ -99,7 +99,7 @@ class ResponseGenerator:
             doc = doc_ref.get()
             if doc.exists:
                 food_data = doc.to_dict()
-                
+
                 # Separate restaurant data from food data
                 restaurant_data = {
                     "name": food_data.pop("restaurant_name", None),
@@ -125,20 +125,30 @@ class ResponseGenerator:
         return food_objects
 
     async def get_foods(self, questions):
-        try:
-            foods_ref = db.collection('Food').limit(20)
-            docs = foods_ref.stream()
+        foods_ref = db.collection('Food').limit(20)
+        docs = foods_ref.stream()
 
-            foods = []
-            for doc in docs:
-                food = doc.to_dict()
-                food['id'] = doc.id
-                foods.append(food)
-            # print(foods)
-            res = self.generate_with_context(questions, foods)
-            return json.loads(res)['foods']
-        except Exception as e:
-            print(e)
+        foods = []
+        restaurant_map = {}
+        for doc in docs:
+            food = doc.to_dict()
+            food['id'] = doc.id
+            restaurant_map[doc.id] = {
+                "name": food["restaurant_name"],
+                "description": food["restaurant_description"],
+                "image": food["restaurant_image"],
+                "address": food["restaurant_address"],
+                "latitude": food["restaurant_latitude"],
+                "longitude": food["restaurant_longitude"],
+            }
+            foods.append(food)
+        print(restaurant_map)
+        res = self.generate_with_context(questions, foods)
+
+        food_objects = self.parsing_llm_output(db= db, output=res)
+        food_objects = self.handle_nan_values(food_objects)
+
+        return food_objects
     
     def generate_answer(self, db: any, question: str):
         # generate embeddings representation from question
