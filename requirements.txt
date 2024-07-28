@@ -2,3 +2,8 @@ fastapi
 uvicorn
 firebase_admin
 pydantic_settings
+pydantic
+openai
+python-dotenv
+pandas
+faiss-cpu

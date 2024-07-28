@@ -1,10 +1,7 @@
-import firebase_admin
-
 from app.router import router
 from app.middleware import FirebaseAuthMiddleware
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from firebase_admin import credentials, firestore
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
@@ -29,8 +26,3 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
 app.add_middleware(FirebaseAuthMiddleware)
 app.include_router(router)
 
-# Initialize Firebase Admin SDK
-cred = credentials.Certificate("firebase-config.json")
-firebase_admin.initialize_app(cred)
-
-db = firestore.client()
