@@ -1,6 +1,25 @@
 # Grow Mood
 
-Backend Services for Grow Mood Application
+Backend Services for Grow Mood Application. This backend services use Firebase Admin for Auth and OpenAI API for training our personalized prompt.
+
+## The Flow of Our Backend Application:
+We have 2 recommendation system:
+- /recommendation -> more reliable but slower
+- /recommendation2 -> Faster but uses only a limited database as preknowledge.
+
+### /recommendation
+1. We train the OpenAI API with the embeddings model using our knowledge base consisting of 5000 cleaned datasets from:
+- https://www.kaggle.com/datasets/graphquest/restaurant-menu-items
+2. We use prompt engineering techniques to generate recommendations from OpenAI using our context. The context is enhanced with the help of the Faiss library, which uses similarity search to get the top-10 recommendations.
+3. After receiving the result from OpenAI, we process it to get the full data matching the documents in Firestore. We focus only on important data when prompting OpenAI to prevent rate limiting.
+
+### /recommendation2
+1. We train OpenAI using a limited dataset from Firestore (up to 20 entries).
+2. We use prompt engineering techniques to generate recommendations based on these limited data.
+
+API Required Body:
+- mood: "very unpleasant", "unpleasant", "neutral", "pleasant", "very pleasant"
+- description: Based on previous answers in the widget. For example, if the user chooses "pleasant", there will be a "calm" option.
 
 ## Local Setup
 
@@ -41,6 +60,9 @@ pip install -r requirements.txt
 
 Add service account for firebase admin with name `firebase-config.json` in the root directory
 
+### Add Embedding Models
+
+
 ### Run the Application
 
 ```bash
@@ -79,7 +101,7 @@ Add service account for firebase project with name `firebase-config.json` in the
 ### Build and Run with Docker Compose
 
 ```bash
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 This will build and start the containers defined in the `docker-compose.yml` file.
@@ -93,5 +115,5 @@ Your application will be available at `http://127.0.0.1:8000`.
 To stop the application, run:
 
 ```bash
-docker-compose down
+docker compose down
 ```
